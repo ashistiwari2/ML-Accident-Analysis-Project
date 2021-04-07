@@ -29,7 +29,7 @@ for col in vehicles.columns:
     
 accidents['Date_time'] = pd.to_datetime(accidents.Date_time)   
 accidents.drop(['Date','Time'],axis=1,inplace=True)
-accidents = accidents.join([vehicles,casualties], how='outer')
+accidents = accidents.join(vehicles, how='outer')
 
 accidents.dropna(inplace=True)
 
@@ -87,8 +87,6 @@ from sklearn.ensemble import RandomForestClassifier
 classifier = RandomForestClassifier(n_estimators = 200, criterion = 'entropy', random_state = 99)
 classifier.fit(X_train, y_train)
 
-# Predicting a new result
-print(classifier.predict(sc.transform([[30,87000]])))
 
 # Predicting the Test set results
 y_pred = classifier.predict(X_test)
