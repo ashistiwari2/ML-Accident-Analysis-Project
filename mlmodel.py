@@ -9,9 +9,9 @@ import pickle
 plt.style.use('ggplot')
 
 # Importing the dataset
-accidents = pd.read_csv('Road Safety Data - Accidents 2019.csv', index_col = 'Accident_Index', low_memory=False)
-casualties = pd.read_csv('Road Safety Data - Casualties 2019.csv', index_col = 'Accident_Index', low_memory=False)
-vehicles = pd.read_csv('Road Safety Data- Vehicles 2019.csv', index_col = 'Accident_Index', low_memory=False)
+accidents = pd.read_csv('DataSets/Road Safety Data - Accidents 2019.csv', index_col ='Accident_Index', low_memory=False)
+casualties = pd.read_csv('DataSets/Road Safety Data - Casualties 2019.csv', index_col ='Accident_Index', low_memory=False)
+vehicles = pd.read_csv('DataSets/Road Safety Data- Vehicles 2019.csv', index_col ='Accident_Index', low_memory=False)
 
 accidents.drop(['Location_Easting_OSGR', 'Location_Northing_OSGR', 'LSOA_of_Accident_Location',
                 'Junction_Control', '2nd_Road_Class'], axis=1, inplace=True)
