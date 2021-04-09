@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+    <style>
+        h1{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chances of having an accident are: </h1>
+    {% if prediction[0] == 1 %}
+    <h1>Severe</h1>
+    {% elif prediction[0] == 2 %}
+    <h1>Moderate</h1>
+    {% else %}
+    <h1>Slight</h1>
+    {% endif %}
+</body>
+</html>
