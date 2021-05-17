@@ -4,14 +4,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import pickle
+# import joblib
 
 plt.style.use('ggplot')
 
 # Importing the dataset
-accidents = pd.read_csv('DataSets/Road Safety Data - Accidents 2019.csv', index_col ='Accident_Index', low_memory=False)
-casualties = pd.read_csv('DataSets/Road Safety Data - Casualties 2019.csv', index_col ='Accident_Index', low_memory=False)
-vehicles = pd.read_csv('DataSets/Road Safety Data- Vehicles 2019.csv', index_col ='Accident_Index', low_memory=False)
+accidents = pd.read_csv('DataSets/Road Safety Data - Accidents 2019.csv', index_col='Accident_Index', low_memory=False)
+casualties = pd.read_csv('DataSets/Road Safety Data - Casualties 2019.csv', index_col='Accident_Index', low_memory=False)
+vehicles = pd.read_csv('DataSets/Road Safety Data - Vehicles 2019.csv', index_col='Accident_Index', low_memory=False)
 
 accidents.drop(['Location_Easting_OSGR', 'Location_Northing_OSGR', 'LSOA_of_Accident_Location',
                 'Junction_Control', '2nd_Road_Class'], axis=1, inplace=True)
@@ -24,6 +24,9 @@ for col in accidents.columns:
 
 for col in casualties.columns:
     casualties = (casualties[casualties[col] != -1])
+    
+for col in vehicles.columns:
+    vehicles = (vehicles[vehicles[col] != -1])
 
 accidents['Date_time'] = pd.to_datetime(accidents.Date_time)
 accidents.drop(['Date', 'Time'], axis=1, inplace=True)
@@ -37,7 +40,7 @@ accidents.Date_time.dt.dayofweek.hist(bins=7, rwidth=0.55, color='red')
 plt.title("Accidents on the day of a week", fontsize=30)
 plt.grid(False)
 plt.ylabel('Accident count', fontsize=20)
-plt.xlabel('0 - Sunday, 1-Monday, 2 - Tuesday, 3 - Wednesday, 4 - Thursday, 5 - Friday, 6 - Saturday', fontsize=10)
+plt.xlabel('0 - Sunday, 1-Monday, 2 - Tuesday, 3 - Wednesday, 4 - Thursday, 5 - Friday, 6 - Saturday', fontsize=13)
 
 # plot for accidents on the hours of a day
 plt.figure(figsize=(12, 6))
@@ -58,6 +61,20 @@ plt.xticks(y_pos, objects)
 plt.xlabel('Age of Drivers', fontsize=20)
 plt.ylabel('Accident count', fontsize=20)
 
+#speed zone accidents
+speed_zone_accidents = accidents.loc[accidents['Speed_limit'].isin(['20' ,'30' ,'40' ,'50' ,'60' ,'70'])]
+speed  = speed_zone_accidents.Speed_limit.value_counts()
+explode = (0.0, 0.0, 0.0 , 0.0 ,0.0,0.0) 
+plt.figure(figsize=(10,8))
+plt.pie(speed.values,  labels=None, 
+         autopct='%.1f',pctdistance=0.8, labeldistance=1.9 ,explode = explode, shadow=False, startangle=160,textprops={'fontsize': 15})
+plt.axis('equal')
+plt.legend(speed.index, bbox_to_anchor=(1,0.7), loc="center right", fontsize=15, 
+            bbox_transform=plt.gcf().transFigure)
+plt.figtext(.5,.9,'Accidents percentage in Speed Zone', fontsize=25, ha='center')
+plt.show()
+
+
 # Required Datasets
 accident_ml = accidents.drop('Accident_Severity', axis=1)
 accident_ml = accident_ml[['Age_of_Driver', 'Vehicle_Type', 'Engine_Capacity_(CC)', 'Day_of_Week', 'Weather_Conditions',
@@ -66,17 +83,34 @@ accident_ml = accident_ml[['Age_of_Driver', 'Vehicle_Type', 'Engine_Capacity_(CC
 
 # Splitting the dataset into the Training set and Test set
 from sklearn.model_selection import train_test_split
-
 X_train, X_test, y_train, y_test = train_test_split(accident_ml.values, accidents['Accident_Severity'].values,
                                                     test_size=0.20, random_state=99)
 
+# Feature Scaling
+# from sklearn.preprocessing import StandardScaler
+# sc = StandardScaler()
+# X_train = sc.fit_transform(X_train)
+# X_test = sc.transform(X_test)
+
+
 # Training the Random Forest Classification model on the Training set
 from sklearn.ensemble import RandomForestClassifier
-classifier = RandomForestClassifier(n_estimators=10, random_state=99)
+classifier = RandomForestClassifier(n_estimators=100, criterion="entropy", random_state=0)
 classifier.fit(X_train, y_train)
 
+
+# # Training the Logistic Regression model on the Training set
+# from sklearn.linear_model import LogisticRegression
+# classifier = LogisticRegression(random_state=0)
+# classifier.fit(X_train, y_train)
+
+# # Training the Decision Tree Classification model on the Training set
+# from sklearn.tree import DecisionTreeClassifier
+# classifier = DecisionTreeClassifier(criterion = 'entropy', random_state = 0)
+# classifier.fit(X_train, y_train)
+
 # Predicting a new result
-print(classifier.predict([[45, 19, 500, 1, 3, 2, 1, 3, 2, 20]]))
+print(classifier.predict([[20, 5, 599, 1, 1, 1, 9, 4, 1, 30]]))
 
 # Predicting the Test set results
 y_pred = classifier.predict(X_test)
@@ -84,11 +118,11 @@ print(np.concatenate((y_pred.reshape(len(y_pred), 1), y_test.reshape(len(y_test)
 
 # Making the Confusion Matrix
 from sklearn.metrics import confusion_matrix, accuracy_score
-
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 accuracy_score(y_test, y_pred)
 
 
-#saving the model
-pickle.dump(classifier, open("mlp.pkl", "wb"))
+
+# saving the model
+# joblib.dump(classifier, "mlp.sav")

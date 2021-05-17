@@ -1,4 +1,4 @@
-   window.onload = function(){
+window.onload = function(){
    function geoFindMe() {
       const status = document.querySelector('#status');
       const lon = document.querySelector("#lon")
